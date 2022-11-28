@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+.pytest_cache/
+**/*.pyc
+data/
+media/
+var/email-messages/*
+var/log/*
+var/screenshots/*
+var/selenium/*
+var/braniaclms.sock
+pytest.ini
+stack.yml
