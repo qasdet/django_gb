@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load email_to_link crispy_forms_tags %}
+
+
+{% block title %}
+Контакты
+{% endblock title %}
+
+{% block content %}
+
+  <p>
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Наши контакты</h1>
+        <p class="lead">Обязательно свяжитесь с нами! Ваш комфорт - наша забота.</p>
+      </div>
+    </div>
+  </p>
+
+  <p>
+    <div class="row justify-content-around mt-n2">
+
+      {% for obj in data %}
+        <div class="col-sm-6 col-md-6 col-lg-4 pb-2">
+          <div class="card h-100 shadow">
+            <div class="card-body">
+              <div style="position:relative;overflow:hidden;">
+                {% for link in obj.links %}
+                <a href="{{ link.href }}" style="color:#eee;font-size:12px;position:absolute;top:28px;">{{ link.name }}</a>
+                {% endfor %}
+                <iframe src="{{ obj.frame_link }}"  width="100%" height="300" frameborder="0" allowfullscreen="true" style="position:relative; border-radius: 4px;"></iframe>
+              </div>
+              <h5 class="card-title"> </h5>
+              <p class="card-text">
+              <ul class="list-unstyled">
+                <li>Телефон</li>
+                <li><strong>{{ obj.phone }}</strong></li>
+              </ul>
+              <ul class="list-unstyled">
+                <li>Email</li>
+                <li><strong>{{ obj.email|email_to_link }}</strong></li>
+              </ul>
+              <ul class="list-unstyled">
+                <li>Адрес</li>
+                <li><strong>{{ obj.address }}</strong></li>
+              </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      
+    </div>
+  </p>
+
+  {% if form %}
+    <p>
+      <h3>Отправить сообщение в техподдержку</h3>
+      <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary btn-block">Отаправить</button>
+      </form>
+    </p>
+  {% endif %}
+
+{% endblock content%}
