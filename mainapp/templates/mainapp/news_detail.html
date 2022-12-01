@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ object.title|default:"Новости" }}
+{% endblock title %}
+
+{% block content %}
+  <div class="row justify-content-center pt-3">
+    <div class="col-md-12 col-lg-8">
+      <div class="card shadow">
+        <div class="card-body">
+          <h5 class="card-title">{{ object.title }}</h5>
+          <p class="card-text">
+            {{ object.body }}
+          </p>
+          <div class="row">
+            <div class="col">
+              <a href="{% url 'mainapp:news' %}" class="btn btn-primary">Назад</a>
+            </div>
+            {% if perms.mainapp.change_news %}
+            <div class="col-1 text-center">
+              <a href="{% url 'mainapp:news_update' pk=object.pk %}">
+                <i class="far fa-edit"></i>
+              </a>
+            </div>
+            {% endif %}
+            {% if perms.mainapp.delete_news %}
+            <div class="col-1 text-center">
+              <a href="{% url 'mainapp:news_delete' pk=object.pk %}">
+                <i class="far fa-trash-alt"></i>
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
