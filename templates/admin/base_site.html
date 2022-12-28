@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+
+{% load static %}
+
+{% block title %}
+	{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}
+{% endblock title %}
+
+{% block branding %}
+	<h1 id="site-name">
+		<a href="{% url 'mainapp:index' %}">
+			<img src="{% static 'img/logo.png' %}" alt="">
+		</a>
+	</h1>
+{% endblock branding %}
+
+{% block nav-global %}
+{% endblock nav-global %}
