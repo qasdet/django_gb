@@ -9,6 +9,7 @@ data/rabbitmq/data/*
 data/rabbitmq/log/*
 !data/rabbitmq/log/.gitkeep
 
+
 # Log files:
 var/
 !var/selenium/

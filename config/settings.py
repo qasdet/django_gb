@@ -20,29 +20,14 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load .env
-ENV_PATH = BASE_DIR / "config" / ".env"
-if not os.path.exists(ENV_PATH):
-    raise FileExistsError('You must create ".env" file before start application.')
-load_dotenv(ENV_PATH)
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split()
-
-if DEBUG:
-    INTERNAL_IPS = [
-        "192.168.88.164",
-        "192.168.88.239",
-        "127.0.0.1",
-    ]
 
 # Application definition
 
@@ -220,6 +205,7 @@ LOGGING = {
 class AMQP:
     user = os.environ.get("RABBITMQ_DEFAULT_USER")
     passwd = os.environ.get("RABBITMQ_DEFAULT_PASS")
+
     vhost = os.environ.get("RABBITMQ_DEFAULT_VHOST")
 
 
@@ -229,21 +215,16 @@ class REDIS:
     port = os.environ.get("REDIS_PORT")
 
 
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://:{REDIS.passwd}@localhost:{REDIS.port}/1",
+
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }
-
-CELERY_BROKER_URL = f"amqp://{AMQP.user}:{AMQP.passwd}@localhost/{AMQP.vhost}"
-# CELERY_BROKER_URL = f'redis://:{REDIS.passwd}@localhost:{REDIS.port}/2'
-
-CELERY_RESULT_BACKEND = f"redis://:{REDIS.passwd}@localhost:{REDIS.port}/2"
-# CELERY_RESULT_BACKEND = f'redis://localhost:{REDIS.port)}/2'
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -261,3 +242,4 @@ DEFAULT_SUPPORT_EMAIL = f"{EMAIL_HOST_USER}@gmail.com"
 # EMAIL_FILE_PATH = "var/email-messages/"
 
 SELENIUM_DRIVER_PATH_FF = BASE_DIR / "var" / "selenium" / "geckodriver"
+

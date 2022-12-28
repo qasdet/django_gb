@@ -2,48 +2,27 @@ version: "3.8"
 
 services:
 
-  # celery:
-  #   image: celery
-  #   hostname: celery
-  #   container_name: celery
-  #   command: celery -A config worker -l info
-  #   # volumes:
-  #   #   - .:.
-  #   depends_on:
-  #     - cache
 
-  cache:
     image: redis
     hostname: redis
     container_name: redis
     restart: always
+
     ports:
       - '${REDIS_PORT}:6379'
     command:
       - '/bin/sh'
       - '-c'
-      - redis-server --save 20 1 --loglevel warning --requirepass "${REDIS_PASSWORD}"
-    volumes:
-      - ./data/cache:/data
-    env_file:
-      - ./config/.env
+
 
   rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
     container_name: rabbitmq
+
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
     ports:
-      # The standard AMQP protocol port
-      - '${RABBITMQ_AMQP_PORT}:5672'
-      # HTTP management UI
-      - '${RABBITMQ_MGMT_PORT}:15672'
-    command: ["bash", "-c", "chmod 400 /var/lib/rabbitmq/.erlang.cookie; rabbitmq-server"]
-    volumes:
-      - ./data/rabbitmq/data:/var/lib/rabbitmq
-      - ./data/rabbitmq/log:/var/log/rabbitmq
-    env_file:
-      - ./config/.env
+
