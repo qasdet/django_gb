@@ -23,6 +23,10 @@ class TestNewsSelenium(StaticLiveServerTestCase):
         self.news_preambule = "News preambule"
         self.news_body = "News body"
 
+        self.selenium = WebDriver(
+            executable_path=settings.SELENIUM_DRIVER_PATH_FF, log_path=settings.SELENIUM_LOG_PATH_FF
+        )
+
         self.selenium.implicitly_wait(10)
         # Login
         self.selenium.get(f"{self.live_server_url}{reverse('authapp:login')}")

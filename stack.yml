@@ -3,10 +3,101 @@ version: "3.8"
 services:
 
 
+  web:
+    build:
+      context: ./
+      dockerfile: init/Dockerfile
+    hostname: web
+    container_name: web
+    restart: always
+    env_file: .env
+    entrypoint: ./init/web_entrypoint.sh
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.conf_production
+    expose:
+      - ${DJANGO_GUNICORN_PORT}
+    volumes:
+      - .:/app
+    command:
+      - '/bin/sh'
+      - '-c'
+      # - './manage.py runserver 0.0.0.0:8000 --insecure'
+      - gunicorn --access-logfile - --workers 2 --bind 0.0.0.0:8000 config.wsgi
+      # - gunicorn --access-logfile - --workers 2 --bind unix:/app/var/braniaclms.sock config.wsgi
+    depends_on:
+      - db
+      - celery
+
+  celery:
+    build:
+      context: ./
+      dockerfile: init/Dockerfile
+    hostname: celery
+    container_name: celery
+    restart: always
+    env_file: .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.conf_production
+    volumes:
+      - .:/app
+    command:
+      - '/bin/sh'
+      - '-c'
+      - celery -A config worker -l info
+    depends_on:
+      - redis
+      - rabbitmq
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      #- ./init/nginx_brainiaclms.conf:/etc/nginx/sites-available/nginx_brainiaclms.conf:ro
+      #- ./init/nginx_brainiaclms.conf:/etc/nginx/sites-enabled/nginx_brainiaclms.conf:ro
+      - ./init/nginx_brainiaclms.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./var/braniaclms.sock:/var/braniaclms.sock
+      - ./static:/var/app/static
+      - ./media:/var/app/media
+    depends_on:
+      - web
+
+  db:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - ./data/database/pg_data:/var/lib/postgresql/data/
+      - ./init/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+
+  adminer:
+    image: adminer
+    hostname: adminer.lan
+    container_name: adminer
+    restart: always
+    env_file: .env
+    ports:
+      - ${ADMINER_PORT}:8080
+
+  redis:
+
+
     image: redis
     hostname: redis
     container_name: redis
     restart: always
+
+    env_file: .env
+
 
     ports:
       - '${REDIS_PORT}:6379'
@@ -14,15 +105,34 @@ services:
       - '/bin/sh'
       - '-c'
 
+      - sysctl vm.overcommit_memory=1; redis-server --save 20 1 --loglevel warning --requirepass "${REDIS_PASSWORD}"
+    volumes:
+      - ./data/cache:/data
+
 
   rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
     container_name: rabbitmq
 
+    restart: always
+    env_file: .env
+
+
+
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
     ports:
+
+      - '${RABBITMQ_AMQP_PORT}:5672'   # The standard AMQP protocol port
+      - '${RABBITMQ_MGMT_PORT}:15672'  # HTTP management UI
+    command: 
+      - '/bin/sh'
+      - '-c'
+      - 'chmod 400 /var/lib/rabbitmq/.erlang.cookie; rabbitmq-server'
+    volumes:
+      - ./data/rabbitmq/data:/var/lib/rabbitmq
+      - ./data/rabbitmq/log:/var/log/rabbitmq
 
