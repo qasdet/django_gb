@@ -37,5 +37,11 @@ RUN python3 -m pip install --upgrade pip && \
 VOLUME ["/app"]
 WORKDIR /app
 
+
 RUN chown -R app:app /app
 USER app
+=======
+# Production server issue: "unable to find user no matching entries in passwd file"
+# USER app
+# RUN chown -R app:app /app
+

@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
 
+
   web:
     build:
       context: ./
@@ -88,31 +89,43 @@ services:
       - ${ADMINER_PORT}:8080
 
   redis:
+
+
     image: redis
     hostname: redis
     container_name: redis
     restart: always
+
     env_file: .env
+
+
     ports:
       - '${REDIS_PORT}:6379'
     command:
       - '/bin/sh'
       - '-c'
+
       - sysctl vm.overcommit_memory=1; redis-server --save 20 1 --loglevel warning --requirepass "${REDIS_PASSWORD}"
     volumes:
       - ./data/cache:/data
+
 
   rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
     container_name: rabbitmq
+
     restart: always
     env_file: .env
+
+
+
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
     ports:
+
       - '${RABBITMQ_AMQP_PORT}:5672'   # The standard AMQP protocol port
       - '${RABBITMQ_MGMT_PORT}:15672'  # HTTP management UI
     command: 
@@ -122,3 +135,4 @@ services:
     volumes:
       - ./data/rabbitmq/data:/var/lib/rabbitmq
       - ./data/rabbitmq/log:/var/log/rabbitmq
+
